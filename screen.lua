@@ -109,11 +109,7 @@ function ArrowSudokuScreen:buildLayout()
                 { id = "show_result",     text = _("Show result"),
                   callback = function() self:toggleSolution() end },
                 self:makeRulesButtonConfig(GAME_RULES_EN, GAME_RULES_FR),
-                { text = _("Close"),      callback = function()
-                    self:onClose()
-                    UIManager:close(self)
-                    UIManager:setDirty(nil, "full")
-                end },
+                self:makeCloseButtonConfig(),
             },
         },
     }
