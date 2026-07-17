@@ -3,5 +3,5 @@ return {
     name        = "arrowsudoku",
     fullname    = _("Arrow Sudoku"),
     description = _("Sudoku with arrow sum constraints"),
-    version     = "1.2.2",
+    version     = "1.2.3",
 }
