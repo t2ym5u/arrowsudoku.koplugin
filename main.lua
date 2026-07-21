@@ -20,6 +20,7 @@ require("i18n").extend(lrequire("i18n_fr"))
 local board_module       = lrequire("board")
 local ArrowSudokuBoard   = board_module.ArrowSudokuBoard
 local DEFAULT_DIFFICULTY = board_module.DEFAULT_DIFFICULTY
+local generateWithProgress = lrequire("common/base_screen").generateWithProgress
 
 local ArrowSudokuScreen = lrequire("screen")
 
@@ -56,7 +57,7 @@ function ArrowSudoku:getBoard()
         self.board = ArrowSudokuBoard:new()
         local state = self.settings:readSetting("state")
         if not self.board:load(state) then
-            self.board:generate(DEFAULT_DIFFICULTY)
+            generateWithProgress(self.board, DEFAULT_DIFFICULTY)
         end
     end
     return self.board
