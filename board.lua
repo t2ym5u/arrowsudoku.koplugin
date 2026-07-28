@@ -44,11 +44,22 @@ local DEFAULT_DIFFICULTY = "medium"
 -- value = sum of solution values along cells.
 local function placeArrows(solution)
     local n = 9
+    -- All 8 compass directions -- using only the 4 "forward" ones (right/
+    -- down/both down-diagonals) left corner cells unreachable as a path
+    -- cell (arriving at a corner would require a source with a negative
+    -- row/col), so arrows clustered heavily toward the grid's center and
+    -- almost never touched the corner boxes. All 8 directions make every
+    -- cell reachable from some source, spreading arrows across the whole
+    -- grid.
     local directions = {
         { dr = 0,  dc = 1  },  -- right
+        { dr = 0,  dc = -1 },  -- left
         { dr = 1,  dc = 0  },  -- down
+        { dr = -1, dc = 0  },  -- up
         { dr = 1,  dc = 1  },  -- diag down-right
         { dr = 1,  dc = -1 },  -- diag down-left
+        { dr = -1, dc = 1  },  -- diag up-right
+        { dr = -1, dc = -1 },  -- diag up-left
     }
 
     local arrows   = {}
@@ -56,38 +67,56 @@ local function placeArrows(solution)
 
     local function cellKey(r, c) return r * 100 + c end
 
-    local target_count = math.random(5, 8)
-    local attempts     = 0
-    local max_attempts = 300
+    -- Even with all 8 directions available, uniformly-random source
+    -- placement still favors the grid's center: any bounded-length path
+    -- dropped at a random position/orientation in a bounded grid is more
+    -- likely to fit (not go out of bounds) the closer its start is to the
+    -- center -- a general geometric effect, not specific to this game.
+    -- A soft bias (weighting source choice by how little a box has been
+    -- touched so far) turned out too weak in testing: a source biased
+    -- toward a corner box still mostly extends its path *into* the
+    -- center anyway, since direction is picked independently. Instead,
+    -- since the target count (5-8) never exceeds the 9 boxes, assign
+    -- each arrow to its own shuffled box up front and require its source
+    -- to land there -- this guarantees real spread rather than merely
+    -- nudging the odds.
+    local box_order = {}
+    for br = 1, 3 do for bc = 1, 3 do box_order[#box_order + 1] = { br = br, bc = bc } end end
+    for i = #box_order, 2, -1 do
+        local j = math.random(i)
+        box_order[i], box_order[j] = box_order[j], box_order[i]
+    end
 
-    while #arrows < target_count and attempts < max_attempts do
-        attempts = attempts + 1
+    local function randomCellInBox(box)
+        local row_in_box = math.random(0, 2)
+        local col_in_box = math.random(0, 2)
+        return (box.br - 1) * 3 + row_in_box + 1, (box.bc - 1) * 3 + col_in_box + 1
+    end
 
-        -- Pick a random source (tail) cell
-        local sr = math.random(1, n)
-        local sc = math.random(1, n)
-        if cell_used[cellKey(sr, sc)] then goto continue end
+    -- Try to place one arrow with its source restricted to `box` (nil =
+    -- anywhere). Returns true and appends to `arrows` on success.
+    local function tryPlaceOne(box)
+        local sr, sc
+        if box then
+            sr, sc = randomCellInBox(box)
+        else
+            sr, sc = math.random(1, n), math.random(1, n)
+        end
+        if cell_used[cellKey(sr, sc)] then return false end
 
         -- Pick a random direction and length for the path (2-3 cells, not including src)
         local dir    = directions[math.random(#directions)]
         local length = math.random(2, 3)
 
         local path = {}
-        local valid = true
         for i = 1, length do
             local nr = sr + dir.dr * i
             local nc = sc + dir.dc * i
-            if nr < 1 or nr > n or nc < 1 or nc > n then
-                valid = false
-                break
-            end
-            if cell_used[cellKey(nr, nc)] then
-                valid = false
-                break
-            end
+            if nr < 1 or nr > n or nc < 1 or nc > n then return false end
+            if cell_used[cellKey(nr, nc)] then return false end
             path[#path + 1] = { r = nr, c = nc }
         end
-        if not valid or #path < 2 then goto continue end
+        if #path < 2 then return false end
 
         -- Compute sum of solution values along path
         local total = 0
@@ -95,7 +124,6 @@ local function placeArrows(solution)
             total = total + solution[cell.r][cell.c]
         end
 
-        -- Mark cells as used
         cell_used[cellKey(sr, sc)] = true
         for _, cell in ipairs(path) do
             cell_used[cellKey(cell.r, cell.c)] = true
@@ -106,8 +134,26 @@ local function placeArrows(solution)
             cells = path,
             value = total,
         }
+        return true
+    end
 
-        ::continue::
+    local target_count = math.random(5, 8)
+    local box_sub_attempts = 40
+
+    for i = 1, target_count do
+        local box = box_order[i]
+        local placed = false
+        for _ = 1, box_sub_attempts do
+            if tryPlaceOne(box) then placed = true; break end
+        end
+        if not placed then
+            -- This box couldn't fit one (rare -- e.g. heavily used by
+            -- earlier arrows); fall back to a free placement anywhere so
+            -- the target count is still reached.
+            for _ = 1, box_sub_attempts do
+                if tryPlaceOne(nil) then break end
+            end
+        end
     end
 
     return arrows
