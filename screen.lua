@@ -97,6 +97,9 @@ function ArrowSudokuScreen:buildLayout()
     local button_width = is_landscape
         and math.max(right_panel_width - Size.span.horizontal_default, 100)
         or  math.floor(sw * 0.9)
+
+    self.status_text:setMaxWidth(is_landscape and button_width or board_frame_size)
+
     local keypad_width = is_landscape and button_width or math.floor(sw * 0.75)
 
     local title_bar = self:buildTitleBar(_("Arrow Sudoku"), function()
