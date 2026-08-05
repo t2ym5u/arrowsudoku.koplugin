@@ -4,7 +4,7 @@ An Arrow Sudoku plugin for [KOReader](https://github.com/koreader/koreader).
 
 ## Screenshot
 
-*(Screenshot to be added.)*
+![Screenshot](images/arrow-sudoku.png)
 
 ## Rules
 
