@@ -12,10 +12,11 @@ Standard Sudoku rules (fill 1–9; no repeats in rows, columns, or 3×3 boxes) p
 
 ## Features
 
-- **Three difficulty levels** — Easy, Medium, Hard
+- **Four difficulty levels** — Easy, Medium, Hard and Expert, each guaranteeing the grid is solvable by pure deduction with no guessing
 - **Arrow highlighting** — tap a cell to highlight its arrow(s)
 - **Note mode** — pencil in candidate digits
 - **Check** — highlights incorrect cells and arrow sums
+- **Hint** — reveals the next deduction in three taps: where to look, which technique and digit, then the value itself
 - **Reveal solution** — shows the full solution
 - **Undo** — step back through your moves
 - **Auto-save** — game state saved and restored on next launch
@@ -37,6 +38,7 @@ Standard Sudoku rules (fill 1–9; no repeats in rows, columns, or 3×3 boxes) p
 | Toggle note mode | Tap **Note: Off / On** |
 | Undo last move | Tap **Undo** |
 | Check progress | Tap **Check** |
+| Get a hint | Tap **Hint** (tap again to go deeper) |
 | New game | Tap **New game** |
 | Change difficulty | Tap **Diff** |
 | Show rules | Tap **Rules** |
