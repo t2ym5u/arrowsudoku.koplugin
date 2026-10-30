@@ -17,6 +17,7 @@ local BaseBoardWidget  = common.BaseBoardWidget
 local drawLine         = common.drawLine
 local drawDiagonalLine = common.drawDiagonalLine
 local drawConflictMark = common.drawConflictMark
+local fitFontSize      = common.fitFontSize
 
 local Size = require("ui/size")
 
@@ -87,9 +88,13 @@ local ArrowSudokuBoardWidget = BaseBoardWidget:extend{
 
 function ArrowSudokuBoardWidget:init()
     BaseBoardWidget.init(self)
-    -- Small font for arrow sum labels in the corner of source cells
+    -- Small font for arrow sum labels in the corner of source cells, fitted
+    -- to the corner above the centred digit. It used to be cell/4 taken as a
+    -- face size, which Font:getFace scales by the screen: on a 300 dpi
+    -- screen that came out near half a cell and ran into the digit.
     local cell = self.size / (self.n or 9)
-    local label_size = math.max(8, math.floor(cell / 4))
+    local label_size = fitFontSize("smallinfofont", 6,
+        math.floor(cell * 0.4), math.floor(cell * 0.18), "45")
     self.arrow_label_face = Font:getFace("smallinfofont", label_size)
 end
 
@@ -146,7 +151,9 @@ function ArrowSudokuBoardWidget:paintTo(bb, x, y)
             local pad   = math.max(1, math.floor(cell / 10))
             local face  = self.arrow_label_face
             local m = RenderText:sizeUtf8Text(0, cell - pad, face, label, true, false)
-            RenderText:renderUtf8Text(bb, src_x + pad, src_y + pad + math.abs(m.y_top), face, label, true, false, arrow_color)
+            -- Darker than the arrow itself: GRAY_B text vanished on the
+            -- selection band.
+            RenderText:renderUtf8Text(bb, src_x + pad, src_y + pad + math.abs(m.y_top), face, label, true, false, Blitbuffer.COLOR_GRAY_6)
         end
     end
 
