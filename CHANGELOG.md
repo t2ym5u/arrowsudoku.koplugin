@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2026-10-30
+
+### Changed
+- Redesigned play screen, shared with the other sudoku variants (sudoku-common
+  1.5.0): the digits sit on one even row of keys, Note/Erase/Check/Hint/Undo
+  on a full-width bar below, and the board takes all the room they leave, in
+  portrait and landscape.
+- The status line reads "9×9 · Medium · Empty: 45" and wraps in landscape
+  instead of being cut off.
+- Title-bar menu: "Difficulty: Medium" instead of "Diff: Medium", and "Show
+  solution" / "Hide solution" instead of "Show result" / "Hide result", like
+  every other game.
+- Once the puzzle is solved, the tool bar shows "New game" in place of its
+  buttons; an Undo that un-solves the grid brings them back.
+
+### Fixed
+- Digits overflowed their cells: the shared font fit accepted every size.
+- The arrow sum in the corner of a circle cell ran into the digit on high-DPI
+  screens (its size was scaled by DPI twice); it is now fitted to the corner,
+  and drawn darker so it no longer vanishes on the selection band.
+
 ## [1.4.1] - 2026-10-02
 
 ### Fixed
