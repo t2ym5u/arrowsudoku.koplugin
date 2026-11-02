@@ -54,7 +54,19 @@ function ArrowSudoku:init()
     self.ui.menu:registerToMainMenu(self)
 end
 
+-- Listed under Tools → Games with the rest of the fleet. games_menu comes
+-- from game-common, which this plugin does not ship: any other game's
+-- common/ provides it. Installed on its own, the game keeps its own entry.
 function ArrowSudoku:addToMainMenu(menu_items)
+    local ok, GamesMenu = pcall(require, "games_menu")
+    if ok and type(GamesMenu) == "table" and GamesMenu.add then
+        GamesMenu.add(menu_items, {
+            id     = "arrowsudoku",
+            label  = _("Arrow Sudoku"),
+            launch = function() self:showGame() end,
+        })
+        return
+    end
     menu_items.arrowsudoku = {
         text         = _("Arrow Sudoku"),
         sorting_hint = "tools",
